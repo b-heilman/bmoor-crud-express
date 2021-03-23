@@ -1,0 +1,19 @@
+{
+  "name": "bmoor-crud-express",
+  "version": "1.0.0",
+  "description": "Express connection to bmoor-crud",
+  "main": "index.js",
+  "scripts": {
+    "test": "test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/b-heilman/bmoor-crud-express.git"
+  },
+  "author": "Brian Heilman",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/b-heilman/bmoor-crud-express/issues"
+  },
+  "homepage": "https://github.com/b-heilman/bmoor-crud-express#readme"
+}
