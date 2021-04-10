@@ -4,7 +4,8 @@
   "description": "Express connection to bmoor-crud",
   "main": "index.js",
   "scripts": {
-    "test": "test"
+    "lint": "node ./node_modules/jshint/bin/jshint ./src",
+    "test": "npm run lint && mocha -w --recursive \"./src/*.spec.js\""
   },
   "repository": {
     "type": "git",
@@ -15,5 +16,17 @@
   "bugs": {
     "url": "https://github.com/b-heilman/bmoor-crud-express/issues"
   },
-  "homepage": "https://github.com/b-heilman/bmoor-crud-express#readme"
+  "homepage": "https://github.com/b-heilman/bmoor-crud-express#readme",
+  "dependencies": {
+    "bmoor-crud": "^0.5.0",
+    "express": "^4.17.1"
+  },
+  "devDependencies": {
+    "chai": "^4.3.4",
+    "jshint": "^2.12.0",
+    "mocha": "^8.3.2",
+    "node-fetch": "^2.6.1",
+    "sinon": "^10.0.0",
+    "sinon-chai": "^3.6.0"
+  }
 }
