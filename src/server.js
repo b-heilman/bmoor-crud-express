@@ -1,9 +1,11 @@
 
 const express = require('express');
 const {Bootstrap, config: bootConfig} = require('bmoor-crud/src/env/bootstrap.js');
+const {Context} = require('bmoor-crud/src/server/context.js');
 
 const config = bootConfig.extend({
 	hooks: {
+		buildContext: req => new Context(req),
 		beforeLoad: async () => null,
 		beforeConfigure: async () => null,
 		beforeStart: async () => null,
@@ -20,9 +22,12 @@ function buildRouter(crudRouter){
 
 	crudRouter.getRoutes().forEach(route => {
 		router[route.method](route.path, async (req, res) => {
-			// TODO: I should build context here
 			try {
-				const rtn = await route.action(req);
+				const hooks = config.get('hooks');
+				
+				const ctx = hooks.buildContext(req);
+				console.log('ctx.toJSON', ctx.toJSON());
+				const rtn = await route.action(ctx);
 
 				res.json(rtn);
 			} catch(ex){
@@ -61,6 +66,7 @@ async function build(bootstrap, mount){
 }
 
 module.exports = {
+	config,
 	configure,
 	build
 };
