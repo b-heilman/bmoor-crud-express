@@ -26,7 +26,7 @@ function buildRouter(crudRouter){
 				const hooks = config.get('hooks');
 				
 				const ctx = hooks.buildContext(req);
-				console.log('ctx.toJSON', ctx.toJSON());
+
 				const rtn = await route.action(ctx);
 
 				res.json(rtn);

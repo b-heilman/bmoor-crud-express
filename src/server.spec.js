@@ -169,15 +169,14 @@ describe('src/server.js', function(){
 		mockery.set('synthetic', [{
 			name: 'composite-1',
 			settings: {
-				read: 'can-read'
+				readable: true
+				// read: 'can-read'
 			}
 		}]);
 
 		bootstrap = await sut.configure(cfg);
 
 		sut.build(bootstrap, app);
-
-		console.log('bootstrap', JSON.stringify(bootstrap.toRoutes(), null, 2));
 
 		return new Promise((resolve) => {
 			server = app.listen(3000, resolve);
@@ -199,7 +198,7 @@ describe('src/server.js', function(){
 	describe('/crud/service-1', function(){
 		describe('method:post', function(){
 			describe('/bmoor/crud/service-1', function(){
-				it('/bmoor/crud/service-1', async function(){
+				it('should work', async function(){
 					const service = bootstrap.nexus.getService('service-1');
 
 					stubs.create = sinon.stub(service, 'create')
@@ -230,17 +229,16 @@ describe('src/server.js', function(){
 
 		describe('method:get', function(){
 			describe('/bmoor/crud/service-1/:id', function(){
-				xit('/bmoor/crud/service-1', async function(){
+				it('should work with a singular', async function(){
 					const service = bootstrap.nexus.getService('service-1');
 
-					stubs.create = sinon.stub(service, 'create')
+					stubs.read = sinon.stub(service, 'read')
 					.resolves({hello: 'world'});
 
 					const res = await (await fetch(
-						'http://localhost:3000/bmoor/crud/service-1', {
-							method: 'post',
-							headers: { 'Content-Type': 'application/json' },
-							body: JSON.stringify({foo: 'bar'})
+						'http://localhost:3000/bmoor/crud/service-1/1234', {
+							method: 'get',
+							headers: { 'Content-Type': 'application/json' }
 						}
 					)).json();
 
@@ -251,55 +249,109 @@ describe('src/server.js', function(){
 						}
 					});
 
-					expect(stubs.create.getCall(0).args[0])
+					expect(stubs.read.getCall(0).args[0])
+					.to.deep.equal('1234');
+				});
+
+				it('should work with a singular', async function(){
+					const service = bootstrap.nexus.getService('service-1');
+
+					stubs.readMany = sinon.stub(service, 'readMany')
+					.resolves({hello: 'world'});
+
+					const res = await (await fetch(
+						'http://localhost:3000/bmoor/crud/service-1/12,34', {
+							method: 'get',
+							headers: { 'Content-Type': 'application/json' }
+						}
+					)).json();
+
+					expect(res)
 					.to.deep.equal({
-						foo: 'bar'
+						result: {
+							hello: 'world'
+						}
 					});
+
+					expect(stubs.readMany.getCall(0).args[0])
+					.to.deep.equal(['12','34']);
 				});
 			});
 
 
 			describe('/bmoor/crud/service-1', function(){
-				xit('/bmoor/crud/service-1', async function(){
+				it('should allow queries', async function(){
 					const service = bootstrap.nexus.getService('service-1');
 
-					stubs.create = sinon.stub(service, 'create')
-					.resolves({hello: 'world'});
+					stubs.query = sinon.stub(service, 'query')
+					.resolves([{hello: 'world'}]);
 
 					const res = await (await fetch(
-						'http://localhost:3000/bmoor/crud/service-1', {
-							method: 'post',
-							headers: { 'Content-Type': 'application/json' },
-							body: JSON.stringify({foo: 'bar'})
+						'http://localhost:3000/bmoor/crud/service-1?foo=bar&hello.world=eins', {
+							method: 'get',
+							headers: { 'Content-Type': 'application/json' }
 						}
 					)).json();
 
 					expect(res)
 					.to.deep.equal({
-						result: {
+						result: [{
 							hello: 'world'
-						}
+						}]
 					});
 
-					expect(stubs.create.getCall(0).args[0])
+					expect(stubs.query.getCall(0).args[0])
 					.to.deep.equal({
-						foo: 'bar'
+						foo: 'bar',
+						'hello.world': 'eins'
+					});
+				});
+
+				it('should allow all', async function(){
+					const service = bootstrap.nexus.getService('service-1');
+
+					stubs.readAll = sinon.stub(service, 'readAll')
+					.resolves([{hello: 'world'}]);
+
+					const res = await (await fetch(
+						'http://localhost:3000/bmoor/crud/service-1', {
+							method: 'get',
+							headers: { 'Content-Type': 'application/json' }
+						}
+					)).json();
+
+					expect(res)
+					.to.deep.equal({
+						result: [{
+							hello: 'world'
+						}]
+					});
+
+					expect(stubs.readAll.getCall(0).args[0].toJSON())
+					.to.deep.equal({
+						content: {},
+						method: 'get',
+						params: {},
+						permissions: {},
+						query: {}
 					});
 				});
 			});
 
 			describe('/bmoor/action/service-1/hello/:id', function(){
-				xit('/bmoor/crud/service-1', async function(){
+				it('should call correctly', async function(){
 					const service = bootstrap.nexus.getService('service-1');
 
-					stubs.create = sinon.stub(service, 'create')
+					stubs.read = sinon.stub(service, 'read')
+					.resolves({a: 'datum'});
+
+					stubs.hello = sinon.stub(service, 'hello')
 					.resolves({hello: 'world'});
 
 					const res = await (await fetch(
-						'http://localhost:3000/bmoor/crud/service-1', {
-							method: 'post',
-							headers: { 'Content-Type': 'application/json' },
-							body: JSON.stringify({foo: 'bar'})
+						'http://localhost:3000/bmoor/action/service-1/hello/123', {
+							method: 'get',
+							headers: { 'Content-Type': 'application/json' }
 						}
 					)).json();
 
@@ -310,26 +362,25 @@ describe('src/server.js', function(){
 						}
 					});
 
-					expect(stubs.create.getCall(0).args[0])
+					expect(stubs.hello.getCall(0).args[0])
 					.to.deep.equal({
-						foo: 'bar'
+						a: 'datum'
 					});
 				});
 			});
 
 
 			describe('/bmoor/utility/service-1/hello', function(){
-				xit('/bmoor/crud/service-1', async function(){
+				it('should call correctly', async function(){
 					const service = bootstrap.nexus.getService('service-1');
 
-					stubs.create = sinon.stub(service, 'create')
+					stubs.hello = sinon.stub(service, 'hello')
 					.resolves({hello: 'world'});
 
 					const res = await (await fetch(
-						'http://localhost:3000/bmoor/crud/service-1', {
-							method: 'post',
-							headers: { 'Content-Type': 'application/json' },
-							body: JSON.stringify({foo: 'bar'})
+						'http://localhost:3000/bmoor/utility/service-1/hello', {
+							method: 'get',
+							headers: { 'Content-Type': 'application/json' }
 						}
 					)).json();
 
@@ -340,25 +391,30 @@ describe('src/server.js', function(){
 						}
 					});
 
-					expect(stubs.create.getCall(0).args[0])
+					expect(stubs.hello.getCall(0).args[0].toJSON())
 					.to.deep.equal({
-						foo: 'bar'
+						content: {},
+						method: 'get',
+						params: {
+							utility: 'hello'
+						},
+						permissions: {},
+						query: {}
 					});
 				});
 			});
 
 			describe('/bmoor/synthetic/composite-1/:id', function(){
-				xit('/bmoor/crud/service-1', async function(){
-					const service = bootstrap.nexus.getService('service-1');
+				it('should work', async function(){
+					const service = bootstrap.nexus.getDocument('composite-1');
 
-					stubs.create = sinon.stub(service, 'create')
+					stubs.read = sinon.stub(service, 'read')
 					.resolves({hello: 'world'});
 
 					const res = await (await fetch(
-						'http://localhost:3000/bmoor/crud/service-1', {
-							method: 'post',
-							headers: { 'Content-Type': 'application/json' },
-							body: JSON.stringify({foo: 'bar'})
+						'http://localhost:3000/bmoor/synthetic/composite-1/1234', {
+							method: 'get',
+							headers: {'Content-Type': 'application/json'}
 						}
 					)).json();
 
@@ -369,26 +425,23 @@ describe('src/server.js', function(){
 						}
 					});
 
-					expect(stubs.create.getCall(0).args[0])
-					.to.deep.equal({
-						foo: 'bar'
-					});
+					expect(stubs.read.getCall(0).args[0])
+					.to.deep.equal('1234');
 				});
 			});
 
 
 			describe('/bmoor/synthetic/composite-1', function(){
-				xit('/bmoor/crud/service-1', async function(){
-					const service = bootstrap.nexus.getService('service-1');
+				it('should work', async function(){
+					const service = bootstrap.nexus.getDocument('composite-1');
 
-					stubs.create = sinon.stub(service, 'create')
+					stubs.query = sinon.stub(service, 'query')
 					.resolves({hello: 'world'});
 
 					const res = await (await fetch(
-						'http://localhost:3000/bmoor/crud/service-1', {
-							method: 'post',
-							headers: { 'Content-Type': 'application/json' },
-							body: JSON.stringify({foo: 'bar'})
+						'http://localhost:3000/bmoor/synthetic/composite-1?foo=bar', {
+							method: 'get',
+							headers: { 'Content-Type': 'application/json' }
 						}
 					)).json();
 
@@ -399,7 +452,7 @@ describe('src/server.js', function(){
 						}
 					});
 
-					expect(stubs.create.getCall(0).args[0])
+					expect(stubs.query.getCall(0).args[0])
 					.to.deep.equal({
 						foo: 'bar'
 					});
@@ -409,17 +462,16 @@ describe('src/server.js', function(){
 
 		describe('method:delete', function(){
 			describe('/bmoor/crud/service-1/:id', function(){
-				xit('/bmoor/crud/service-1', async function(){
+				it('it should work', async function(){
 					const service = bootstrap.nexus.getService('service-1');
 
-					stubs.create = sinon.stub(service, 'create')
+					stubs.delete = sinon.stub(service, 'delete')
 					.resolves({hello: 'world'});
 
 					const res = await (await fetch(
-						'http://localhost:3000/bmoor/crud/service-1', {
-							method: 'post',
-							headers: { 'Content-Type': 'application/json' },
-							body: JSON.stringify({foo: 'bar'})
+						'http://localhost:3000/bmoor/crud/service-1/1234', {
+							method: 'delete',
+							headers: { 'Content-Type': 'application/json' }
 						}
 					)).json();
 
@@ -430,55 +482,58 @@ describe('src/server.js', function(){
 						}
 					});
 
-					expect(stubs.create.getCall(0).args[0])
-					.to.deep.equal({
-						foo: 'bar'
-					});
+					expect(stubs.delete.getCall(0).args[0])
+					.to.deep.equal('1234');
 				});
 			});
 
 
 			describe('/bmoor/crud/service-1', function(){
-				xit('/bmoor/crud/service-1', async function(){
+				it('is should work', async function(){
 					const service = bootstrap.nexus.getService('service-1');
 
-					stubs.create = sinon.stub(service, 'create')
+					stubs.query = sinon.stub(service, 'query')
+					.resolves([{id: 'zwei'}]);
+
+					stubs.delete = sinon.stub(service, 'delete')
 					.resolves({hello: 'world'});
 
 					const res = await (await fetch(
-						'http://localhost:3000/bmoor/crud/service-1', {
-							method: 'post',
-							headers: { 'Content-Type': 'application/json' },
-							body: JSON.stringify({foo: 'bar'})
+						'http://localhost:3000/bmoor/crud/service-1?foo=bar', {
+							method: 'delete',
+							headers: { 'Content-Type': 'application/json' }
 						}
 					)).json();
 
 					expect(res)
 					.to.deep.equal({
-						result: {
+						result: [{
 							hello: 'world'
-						}
+						}]
 					});
 
-					expect(stubs.create.getCall(0).args[0])
+					expect(stubs.query.getCall(0).args[0])
 					.to.deep.equal({
 						foo: 'bar'
 					});
+
+					expect(stubs.delete.getCall(0).args[0])
+					.to.deep.equal('zwei');
 				});
 			});
 		});
 
 		describe('method:put', function(){
 			describe('/bmoor/crud/service-1/:id', function(){
-				xit('/bmoor/crud/service-1', async function(){
+				it('should work', async function(){
 					const service = bootstrap.nexus.getService('service-1');
 
-					stubs.create = sinon.stub(service, 'create')
+					stubs.update = sinon.stub(service, 'update')
 					.resolves({hello: 'world'});
 
 					const res = await (await fetch(
-						'http://localhost:3000/bmoor/crud/service-1', {
-							method: 'post',
+						'http://localhost:3000/bmoor/crud/service-1/1234', {
+							method: 'put',
 							headers: { 'Content-Type': 'application/json' },
 							body: JSON.stringify({foo: 'bar'})
 						}
@@ -491,25 +546,23 @@ describe('src/server.js', function(){
 						}
 					});
 
-					expect(stubs.create.getCall(0).args[0])
-					.to.deep.equal({
-						foo: 'bar'
-					});
+					expect(stubs.update.getCall(0).args[0])
+					.to.deep.equal('1234');
 				});
 			});
 		});
 
 		describe('method:patch', function(){
 			describe('/bmoor/crud/service-1', function(){
-				xit('/bmoor/crud/service-1', async function(){
+				it('/bmoor/crud/service-1', async function(){
 					const service = bootstrap.nexus.getService('service-1');
 
-					stubs.create = sinon.stub(service, 'create')
+					stubs.update = sinon.stub(service, 'update')
 					.resolves({hello: 'world'});
 
 					const res = await (await fetch(
-						'http://localhost:3000/bmoor/crud/service-1', {
-							method: 'post',
+						'http://localhost:3000/bmoor/crud/service-1/1234', {
+							method: 'patch',
 							headers: { 'Content-Type': 'application/json' },
 							body: JSON.stringify({foo: 'bar'})
 						}
@@ -522,46 +575,10 @@ describe('src/server.js', function(){
 						}
 					});
 
-					expect(stubs.create.getCall(0).args[0])
-					.to.deep.equal({
-						foo: 'bar'
-					});
+					expect(stubs.update.getCall(0).args[0])
+					.to.deep.equal('1234');
 				});
 			});
 		});
 	});
-
-	/*
-	{
-	"path": "",
-	"method": "get"
-	},
-	{
-	"path": "",
-	"method": "get"
-	},
-	{
-	"path": "",
-	"method": "get"
-	},
-	{
-	"path": "",
-	"method": "get"
-	}
-	*/
-	/*
-	it('should do something', async function(){
-		const router = express.Router();
-
-		router.get('/hello', function(req, res){
-			res.json({
-				hello: 'world'
-			});
-		});
-
-		app.use(router);
-
-		const res = await (await fetch('http://localhost:3000/hello')).json();
-	});
-	*/
 });
