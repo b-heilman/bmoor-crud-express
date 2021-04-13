@@ -199,7 +199,7 @@ describe('src/server.js', function(){
 		describe('method:post', function(){
 			describe('/bmoor/crud/service-1', function(){
 				it('should work', async function(){
-					const service = bootstrap.nexus.getService('service-1');
+					const service = bootstrap.nexus.getCrud('service-1');
 
 					stubs.create = sinon.stub(service, 'create')
 					.resolves({hello: 'world'});
@@ -230,7 +230,7 @@ describe('src/server.js', function(){
 		describe('method:get', function(){
 			describe('/bmoor/crud/service-1/:id', function(){
 				it('should work with a singular', async function(){
-					const service = bootstrap.nexus.getService('service-1');
+					const service = bootstrap.nexus.getCrud('service-1');
 
 					stubs.read = sinon.stub(service, 'read')
 					.resolves({hello: 'world'});
@@ -254,7 +254,7 @@ describe('src/server.js', function(){
 				});
 
 				it('should work with a singular', async function(){
-					const service = bootstrap.nexus.getService('service-1');
+					const service = bootstrap.nexus.getCrud('service-1');
 
 					stubs.readMany = sinon.stub(service, 'readMany')
 					.resolves({hello: 'world'});
@@ -281,7 +281,7 @@ describe('src/server.js', function(){
 
 			describe('/bmoor/crud/service-1', function(){
 				it('should allow queries', async function(){
-					const service = bootstrap.nexus.getService('service-1');
+					const service = bootstrap.nexus.getCrud('service-1');
 
 					stubs.query = sinon.stub(service, 'query')
 					.resolves([{hello: 'world'}]);
@@ -308,7 +308,7 @@ describe('src/server.js', function(){
 				});
 
 				it('should allow all', async function(){
-					const service = bootstrap.nexus.getService('service-1');
+					const service = bootstrap.nexus.getCrud('service-1');
 
 					stubs.readAll = sinon.stub(service, 'readAll')
 					.resolves([{hello: 'world'}]);
@@ -340,7 +340,7 @@ describe('src/server.js', function(){
 
 			describe('/bmoor/action/service-1/hello/:id', function(){
 				it('should call correctly', async function(){
-					const service = bootstrap.nexus.getService('service-1');
+					const service = bootstrap.nexus.getCrud('service-1');
 
 					stubs.read = sinon.stub(service, 'read')
 					.resolves({a: 'datum'});
@@ -372,7 +372,7 @@ describe('src/server.js', function(){
 
 			describe('/bmoor/utility/service-1/hello', function(){
 				it('should call correctly', async function(){
-					const service = bootstrap.nexus.getService('service-1');
+					const service = bootstrap.nexus.getCrud('service-1');
 
 					stubs.hello = sinon.stub(service, 'hello')
 					.resolves({hello: 'world'});
@@ -463,7 +463,7 @@ describe('src/server.js', function(){
 		describe('method:delete', function(){
 			describe('/bmoor/crud/service-1/:id', function(){
 				it('it should work', async function(){
-					const service = bootstrap.nexus.getService('service-1');
+					const service = bootstrap.nexus.getCrud('service-1');
 
 					stubs.delete = sinon.stub(service, 'delete')
 					.resolves({hello: 'world'});
@@ -490,7 +490,7 @@ describe('src/server.js', function(){
 
 			describe('/bmoor/crud/service-1', function(){
 				it('is should work', async function(){
-					const service = bootstrap.nexus.getService('service-1');
+					const service = bootstrap.nexus.getCrud('service-1');
 
 					stubs.query = sinon.stub(service, 'query')
 					.resolves([{id: 'zwei'}]);
@@ -526,7 +526,7 @@ describe('src/server.js', function(){
 		describe('method:put', function(){
 			describe('/bmoor/crud/service-1/:id', function(){
 				it('should work', async function(){
-					const service = bootstrap.nexus.getService('service-1');
+					const service = bootstrap.nexus.getCrud('service-1');
 
 					stubs.update = sinon.stub(service, 'update')
 					.resolves({hello: 'world'});
@@ -555,7 +555,7 @@ describe('src/server.js', function(){
 		describe('method:patch', function(){
 			describe('/bmoor/crud/service-1', function(){
 				it('/bmoor/crud/service-1', async function(){
-					const service = bootstrap.nexus.getService('service-1');
+					const service = bootstrap.nexus.getCrud('service-1');
 
 					stubs.update = sinon.stub(service, 'update')
 					.resolves({hello: 'world'});
