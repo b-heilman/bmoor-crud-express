@@ -280,14 +280,22 @@ describe('src/server.js', function(){
 
 
 			describe('/bmoor/crud/service-1', function(){
-				it('should allow queries', async function(){
+				xit('should allow queries', async function(){
 					const service = bootstrap.nexus.getCrud('service-1');
 
 					stubs.query = sinon.stub(service, 'query')
 					.resolves([{hello: 'world'}]);
 
+					const url = 'http://localhost:3000/bmoor/crud/service-1';
+					url += '?filter[foo]=bar&filter[id][gt]=1000&filter[id][lt]=1500'
+						+ '&sort=-bar,+id'
+						+ '&join[.id$service-2 > service-1]=20';
+
+					// join to base models like composites... where to put logic?
+					// TODO: pagination
+
 					const res = await (await fetch(
-						'http://localhost:3000/bmoor/crud/service-1?foo=bar&hello.world=eins', {
+						url, {
 							method: 'get',
 							headers: { 'Content-Type': 'application/json' }
 						}
@@ -553,8 +561,8 @@ describe('src/server.js', function(){
 		});
 
 		describe('method:patch', function(){
-			describe('/bmoor/crud/service-1', function(){
-				it('/bmoor/crud/service-1', async function(){
+			describe('/bmoor/crud/service-1/:id', function(){
+				it('should work', async function(){
 					const service = bootstrap.nexus.getCrud('service-1');
 
 					stubs.update = sinon.stub(service, 'update')
