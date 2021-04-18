@@ -286,10 +286,10 @@ describe('src/server.js', function(){
 					stubs.query = sinon.stub(service, 'query')
 					.resolves([{hello: 'world'}]);
 
-					const url = 'http://localhost:3000/bmoor/crud/service-1';
-					url += '?filter[foo]=bar&filter[id][gt]=1000&filter[id][lt]=1500'
-						+ '&sort=-bar,+id'
-						+ '&join[.id$service-2 > service-1]=20';
+					const url = 'http://localhost:3000/bmoor/crud/service-1' +
+						'?filter[foo]=bar&filter[id][gt]=1000&filter[id][lt]=1500' +
+						'&sort=-bar,+id' +
+						'&join[.id$service-2 > service-1]=20';
 
 					// join to base models like composites... where to put logic?
 					// TODO: pagination
